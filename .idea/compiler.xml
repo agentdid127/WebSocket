@@ -9,6 +9,7 @@
         <module name="App" />
         <module name="ExamplePlugin" />
         <module name="client" />
+        <module name="ExampleClient" />
         <module name="Api" />
         <module name="Core (1)" />
       </profile>
