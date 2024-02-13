@@ -3,15 +3,20 @@ package com.agentdid127.websocket.core;
 import com.agentdid127.converter.core.PluginLoader;
 import com.agentdid127.converter.iface.IPluginLoader;
 import com.agentdid127.converter.util.Logger;
+import com.agentdid127.date.unix.UnixFormat;
+import com.agentdid127.date.unix.UnixSupportedDate;
+import com.agentdid127.date.unix.UnixTimestamp;
 import com.agentdid127.websocket.api.Endpoint;
 import com.agentdid127.websocket.api.IApp;
 import com.agentdid127.websocket.api.WSPlugin;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 import joptsimple.OptionSet;
 import org.apache.log4j.PropertyConfigurator;
@@ -56,8 +61,14 @@ public class App extends IApp {
       logsPath.toFile().mkdirs();
     }
 
-    if (!logsPath.resolve("latest.log").toFile().exists()) {
-      logsPath.resolve("latest.log").toFile().renameTo(logsPath.resolve("" + new Date().getTime() + ".log").toFile());
+    if (logsPath.resolve("latest.log").toFile().exists()) {
+      UnixSupportedDate date = UnixTimestamp.current().toDate();
+      String dateString = date.getYear() + "-" + date.getMonth() + "-" + date.getDay();
+      int iter = 0;
+      while (logsPath.resolve(dateString + "-" + iter + ".log").toFile().exists()) {
+        iter++;
+      }
+      logsPath.resolve("latest.log").toFile().renameTo(logsPath.resolve(dateString + "-" + iter + ".log").toFile());
     }
 
     logsPath.resolve("latest.log").toFile().createNewFile();
@@ -121,11 +132,29 @@ public class App extends IApp {
       } else if (split[0].equalsIgnoreCase("help")) {
         // Help Command
         logger.info("HELP: ");
-        logger.info(" 1.) help   - Print this message");
-        logger.info(" 2.) stop   - Stop the server");
-        logger.info(" 3.) reload - Reload Plugins");
+        logger.info(" 1.) help        - Print this message");
+        logger.info(" 2.) stop        - Stop the server");
+        logger.info(" 3.) reload      - Reload Plugins");
+        logger.info(" 4.) connections - Gets server connections");
       } else if (split[0].equalsIgnoreCase("reload")) {
         app.reloadPlugins();
+      } else if (split[0].equalsIgnoreCase("connections")) {
+        if (split.length > 1) {
+          for (int i = 1; i < split.length; i++) {
+            if (WebServer.instance.getConnection(split[i]) != null) {
+              InetSocketAddress conn = WebServer.instance.getConnection(split[i])
+                  .getRemoteSocketAddress();
+              logger.info(conn.getHostName() + "@" + conn.getHostString() + ":" + conn.getPort());
+            }
+          }
+        } else {
+          List<String> conn = WebServer.instance.getConnectionNames();
+
+          for (String s : conn) {
+            InetSocketAddress conn2 = WebServer.instance.getConnection(s).getRemoteSocketAddress();
+            logger.info(conn2.getHostName() + "@" + conn2.getHostString() + ":" + conn2.getPort());
+          }
+        }
       }
     }
 
