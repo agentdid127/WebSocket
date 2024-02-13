@@ -4,7 +4,9 @@ import com.agentdid127.converter.util.Logger;
 import com.agentdid127.websocket.api.Endpoint;
 import com.agentdid127.websocket.api.IApp;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -39,6 +41,14 @@ public class WebServer extends WebSocketServer {
     return endpoints;
   }
 
+  public List<String> getConnectionNames() {
+    ArrayList<String> out = new ArrayList<>();
+    for (String s : connections.keySet()) {
+      out.add(s);
+    }
+    return out;
+  }
+
   /**
    * Gets a connection by its name.
    * @param connection The connection.
@@ -55,7 +65,7 @@ public class WebServer extends WebSocketServer {
    */
   @Override
   public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
-    connections.put(webSocket.getRemoteSocketAddress().getHostString(), webSocket);
+    connections.put(getName(webSocket), webSocket);
   }
 
   /**
@@ -67,7 +77,8 @@ public class WebServer extends WebSocketServer {
    */
   @Override
   public void onClose(WebSocket webSocket, int i, String s, boolean b) {
-    connections.remove(webSocket.getRemoteSocketAddress().getHostString());
+
+    connections.remove(getName(webSocket));
   }
 
   /**
@@ -79,7 +90,7 @@ public class WebServer extends WebSocketServer {
   public void onMessage(WebSocket webSocket, String message) {
     // Ask to close.
     if (message.equals("close")) {
-      connections.remove(webSocket.getRemoteSocketAddress().getHostString());
+      connections.remove(getName(webSocket));
       webSocket.closeConnection(0, "Closed by User.");
       return;
     }
@@ -95,9 +106,9 @@ public class WebServer extends WebSocketServer {
 
     if (endpoints.containsKey(header)) {
       String response = endpoints.get(header)
-          .onMessage(webSocket.getRemoteSocketAddress().getHostString(), data);
+          .onMessage(getName(webSocket), data);
       if (response.length() > 0) {
-        IApp.instance.sendMessage(webSocket.getRemoteSocketAddress().getHostString(), response);
+        IApp.instance.sendMessage(getName(webSocket), response);
       }
     }
   }
@@ -110,7 +121,7 @@ public class WebServer extends WebSocketServer {
   @Override
   public void onError(WebSocket webSocket, Exception e) {
     Logger.getLogger().trace(e.getMessage(), e);
-    connections.remove(webSocket.getRemoteSocketAddress().getHostString());
+    connections.remove(getName(webSocket));
     webSocket.closeConnection(1, e.getMessage());
   }
 
@@ -120,5 +131,10 @@ public class WebServer extends WebSocketServer {
   @Override
   public void onStart() {
 
+  }
+
+  private String getName(WebSocket socket) {
+    InetSocketAddress conn2 = socket.getRemoteSocketAddress();
+    return conn2.getHostName() + "@" + conn2.getAddress().getHostAddress() + ":" + conn2.getPort();
   }
 }
