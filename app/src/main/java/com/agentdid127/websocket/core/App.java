@@ -11,6 +11,7 @@ import com.agentdid127.websocket.api.IApp;
 import com.agentdid127.websocket.api.WSPlugin;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,7 +45,7 @@ public class App extends IApp {
    * @throws IOException
    * @throws InterruptedException
    */
-  public static void main(String[] args) throws IOException, InterruptedException {
+  public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
     // Parse Command-line options
     OptionSet optionSet = Options.PARSER.parse(args);

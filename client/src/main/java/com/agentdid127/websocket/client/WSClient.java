@@ -11,9 +11,9 @@ import java.util.function.Consumer;
  */
 public class WSClient {
 
-  private String url;
+  private final String url;
 
-  private ArrayList<String> requests;
+  private final ArrayList<String> requests;
 
   private Consumer<String> onResponse;
 
@@ -28,15 +28,21 @@ public class WSClient {
     this.url = url;
     this.requests = new ArrayList<>();
     this.onResponse = onResponse;
+    initClient();
+  }
+
+  /**
+   * Initializes the WebSocket Client.
+   */
+  private void initClient() {
     try {
-      this.client = new WSInternalClient(url, new MessageHandler.Whole<String>() {
-        @Override
-        public void onMessage(String message) {
-          onResponse.accept(message);
-        }
-      }, (session) -> {
-        if (requests.size() > 0) {
-          String req = requests.remove(0);
+      WSClient client = this;
+      this.client = new WSInternalClient(url,
+              (MessageHandler.Whole<String>) message ->
+                      client.onResponse.accept(message),
+              (session) -> {
+        if (!this.requests.isEmpty()) {
+          String req = this.requests.remove(0);
           session.getAsyncRemote().sendText(req);
         }
       });
@@ -47,6 +53,7 @@ public class WSClient {
 
   /**
    * Sends a message to the server.
+   *
    * @param loc Location to send, In format of Plugin.Handler
    * @param message Message to send to the server.
    */
@@ -64,9 +71,10 @@ public class WSClient {
   }
 
   /**
-   * Restarts the connection from scratch
-   * @throws DeploymentException
-   * @throws URISyntaxException
+   * Restarts the connection from scratch.
+   *
+   * @throws DeploymentException If the deployment fails.
+   * @throws URISyntaxException if the URI is bad
    */
   public void restart() throws DeploymentException, URISyntaxException {
     requests.clear();
@@ -75,6 +83,7 @@ public class WSClient {
 
   /**
    * Sets the main response handler.
+   *
    * @param responseHandler Response handler.
    */
   public void setResponseHandler(Consumer<String> responseHandler) {
@@ -83,6 +92,7 @@ public class WSClient {
 
   /**
    * Retrieves the URL
+   *
    * @return URL.
    */
   public String getUrl() {
@@ -91,6 +101,7 @@ public class WSClient {
 
   /**
    * Returns if the client is connected.
+   *
    * @return {@code true} if the client is connected.
    */
   public boolean isRunning() {

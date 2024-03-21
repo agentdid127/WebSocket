@@ -17,13 +17,14 @@ import org.glassfish.tyrus.client.ClientManager;
 public class WSInternalClient {
 
   private ClientManager client;
-  private String url;
-  private MessageHandler handler;
-  private Consumer<Session> messageSender;
+  private final String url;
+  private final MessageHandler handler;
+  private final Consumer<Session> messageSender;
   private Thread requestThread;
 
   /**
-   * Main Conestructor
+   * Main Constructor
+   *
    * @param url URL of connection
    * @param handler Message Handler
    * @param messageSender Tool to send messages
@@ -39,6 +40,7 @@ public class WSInternalClient {
 
   /**
    * Initializes the WebSocketServer.
+   *
    * @throws URISyntaxException if the URI is bad
    * @throws DeploymentException if the deployment fails.
    */
@@ -76,8 +78,9 @@ public class WSInternalClient {
 
   /**
    * Restarts the server
-   * @throws DeploymentException
-   * @throws URISyntaxException
+   *
+   * @throws DeploymentException If the deployment fails
+   * @throws URISyntaxException If the syntax is bad.
    */
   public void restart() throws DeploymentException, URISyntaxException {
     close();
@@ -86,7 +89,8 @@ public class WSInternalClient {
 
   /**
    * Checks if the server is running
-   * @return
+   *
+   * @return {@code true} if the service is still running. {@code false} otherwise.
    */
   public boolean isRunning() {
     return !(client.getExecutorService().isShutdown() || client.getExecutorService().isTerminated());

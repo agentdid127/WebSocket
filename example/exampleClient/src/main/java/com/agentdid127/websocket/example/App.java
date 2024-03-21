@@ -9,15 +9,14 @@ public class App {
 
   /**
    * Example Client
+   *
    * @param args Args
    * @throws InterruptedException if the Thread interrrupts
    */
   public static void main(String[] args) throws InterruptedException {
 
     // Create the client
-    WSClient client = new WSClient("ws://localhost:8080", (message) -> {
-        System.out.println(message);
-    });
+    WSClient client = new WSClient("ws://localhost:8080", System.out::println);
 
     // Send 5 Hello World Messages.
     int test = 0;
