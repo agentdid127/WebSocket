@@ -26,6 +26,7 @@ public class WebServer extends WebSocketServer {
 
   /**
    * Main Server
+   *
    * @param address Address of server.
    */
   public WebServer(InetSocketAddress address) {
@@ -35,6 +36,7 @@ public class WebServer extends WebSocketServer {
 
   /**
    * Gets all server endpoints.
+   *
    * @return All endpoints.
    */
   public Map<String,Endpoint> getEndpoints() {
@@ -51,6 +53,7 @@ public class WebServer extends WebSocketServer {
 
   /**
    * Gets a connection by its name.
+   *
    * @param connection The connection.
    * @return A WebSocket connection.
    */
@@ -60,6 +63,7 @@ public class WebServer extends WebSocketServer {
 
   /**
    * Runs when a connection is made to the server.
+   *
    * @param webSocket Socket with the connection
    * @param clientHandshake Handshake
    */
@@ -70,6 +74,7 @@ public class WebServer extends WebSocketServer {
 
   /**
    * Runs when a connection is closed.
+   *
    * @param webSocket The socket
    * @param i Not sure, see WebSocket documentation.
    * @param s See WebSocket Documentation.
@@ -83,6 +88,7 @@ public class WebServer extends WebSocketServer {
 
   /**
    * Runs when a message is received.
+   *
    * @param webSocket Socket receiving message.
    * @param message Message received.
    */
@@ -115,6 +121,7 @@ public class WebServer extends WebSocketServer {
 
   /**
    * Handle Error
+   *
    * @param webSocket Error Socket
    * @param e Exception thrown
    */
@@ -130,9 +137,15 @@ public class WebServer extends WebSocketServer {
    */
   @Override
   public void onStart() {
-
+    Logger.getLogger().info("Web Socket Server Started.");
   }
 
+  /**
+   * Get Name of Web Socket.
+   *
+   * @param socket Web Socket to get Name of
+   * @return Returns the Hostname of the server, it's address and port.
+   */
   private String getName(WebSocket socket) {
     InetSocketAddress conn2 = socket.getRemoteSocketAddress();
     return conn2.getHostName() + "@" + conn2.getAddress().getHostAddress() + ":" + conn2.getPort();
