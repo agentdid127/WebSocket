@@ -29,14 +29,17 @@ import org.slf4j.LoggerFactory;
 public class App extends IApp {
 
   // Plugin Loader
-  private IPluginLoader<WSPlugin> pluginLoader;
+  private final IPluginLoader<WSPlugin> pluginLoader;
+
+  private final InetSocketAddress address;
 
   /**
    * Constructs an instance of the App.
    * @param pluginLoader Plugin Loader for the app.
    */
-  public App(IPluginLoader<WSPlugin> pluginLoader) {
+  public App(IPluginLoader<WSPlugin> pluginLoader, InetSocketAddress address) {
     this.pluginLoader = pluginLoader;
+    this.address = address;
   }
 
   /**
@@ -102,7 +105,7 @@ public class App extends IApp {
             "com.agentdid127.websocket.api", "com.agentdid127.converter", "org.slf4j"));
 
     // Create the application instance and load the plugins.
-    App app = new App(pluginLoader);
+    App app = new App(pluginLoader, address);
     IApp.instance = app;
     pluginLoader.loadPlugins();
 
@@ -227,5 +230,10 @@ public class App extends IApp {
   public void reloadPlugins() {
     unloadPlugins();
     initPlugins();
+  }
+
+  @Override
+  public InetSocketAddress getAddress() {
+    return address;
   }
 }
